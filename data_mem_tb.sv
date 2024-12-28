@@ -20,7 +20,8 @@ data_mem dut (
 .mem_write(mem_write),
 .addr(addr),
 .wdata(wdata),
-.rdata(rdata)
+.rdata(rdata),
+.bhw(bhw)
 
 );
 
@@ -33,10 +34,13 @@ end
 
 initial begin
 
-reset_n = 0; mem_write = 1; addr = 'h00000005; wdata = 'hFF00FF00; bhw = 'b10; #10;
-reset_n = 1; mem_write = 1; addr = 'h00000005; wdata = 'hFFFFFFFF; bhw = 'b10; #10;
-reset_n = 1; mem_write = 0; addr = 'h00000005; wdata = 'hAAAAAAAA; bhw = 'b10; #10;
-reset_n = 1; mem_write = 1; addr = 'h00000005; wdata = 'hBBBBBBBB; bhw = 'b10; #10;
+reset_n = 0; mem_write = 1; addr = 'h00000004; wdata = 'hFF00FF00; bhw = 'b10; #10;
+reset_n = 1; mem_write = 1; addr = 'h00000008; wdata = 'hFFFFFFFF; bhw = 'b10; #10;
+reset_n = 1; mem_write = 1; addr = 'h0000000c; wdata = 'hAAAAAAAA; bhw = 'b10; #10;
+reset_n = 1; mem_write = 1; addr = 'h00000010; wdata = 'hBBBBBBBB; bhw = 'b10; #10;
+
+reset_n = 1; mem_write = 1; addr = 'h00000014; wdata = 'hABCDEDEF; bhw = 'b00; #10;
+reset_n = 1; mem_write = 1; addr = 'h00000018; wdata = 'hABCDEDEF; bhw = 'b01; #10;
 
 
 
