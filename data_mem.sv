@@ -39,8 +39,7 @@ output logic [31:0]rdata //read data
     
     always_ff @ (posedge clk, negedge reset_n) begin
         
-        if (reset_n == 0) dmem <= '{default: '0};
-        
+        if (reset_n == 0) dmem <= '{default: 32'b0};
         else if(mem_write) begin
         
         case (bhw[1:0])
