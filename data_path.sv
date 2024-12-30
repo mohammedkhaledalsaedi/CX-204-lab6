@@ -2,7 +2,14 @@
 
 
 module data_path(
-input logic clk, reset_n
+input logic clk, reset_n,
+input logic reg_write,
+input logic alu_src,
+input logic mem_write,
+input logic [3:0]alu_ctrl,
+input logic mem_to_reg,
+input logic branch,
+input logic [2:0]func3
     );
     
     
@@ -11,62 +18,59 @@ input logic clk, reset_n
     logic [31:0]pc_plus_4;  
     logic memtoreg;  
     logic [31:0]instruction;  
-    logic reg_write;
+
     logic [4:0]rs1, rs2, rd;
+    
+    reg [31:0]reg_rdata1;
+    reg [31:0]reg_rdata2;
+    logic [31:0]reg_wdata;
+    logic [31:0]imm; 
+    logic [31:0]pc_jump;    
+    
+     logic pc_sel;
+     logic zero;
+//     logic branch = 0; 
+    
+
+
+    logic [31:0]alu_result;
+    
+    logic [31:0]alu_op2;
+
+
+    
+    
+
+    logic [31:0]mem_rdata;  
+    
+    
+    assign func3 = instruction[14:12]; 
+    
+    
     assign rs1 = instruction[19:15];
     assign rs2 = instruction[24:20];
     assign rd  = instruction[11:7];
         
-    logic [31:0]reg_rdata1;
-    logic [31:0]reg_rdata2;
-    logic [31:0]reg_wdata;
-    logic [31:0]imm; 
-    logic [31:0]pc_jump;
+
     
     assign pc_jump = current_pc + imm; // alu/adder
-    
-     logic zero;
-     logic branch;
-     logic pc_sel;
+
+     
      assign pc_sel = branch & zero;
-     assign next_pc = (pc_sel == 0) ? pc_plus_4 : pc_jump;
-    logic [3:0]alu_ctrl;
-//    logic zero; moved it up there
-    logic [31:0]alu_result;
+//assign pc_sel = 0;
+//     assign next_pc = (pc_sel == 0) ? pc_plus_4 : pc_jump;
+      assign next_pc = pc_sel ? pc_jump : pc_plus_4;
     
-    logic [31:0]alu_op2;
-    // logic [31:0]reg_rdata2; its written up there
-//    logic [31:0]imm;    also its written up there
-    logic alu_src; //conrol bit for the MUX
+    assign alu_op2 = alu_src ? imm : reg_rdata2;  //<------ MUX
     
-    assign alu_op2 = (alu_src == 0) ? reg_rdata2 : imm;  //<------ MUX
-    
-    logic mem_write;
-    logic [31:0]mem_rdata;
+
     
     
-    assign reg_wdata = (memtoreg == 1) ? mem_rdata : alu_result;
+    assign reg_wdata = mem_to_reg ? mem_rdata : alu_result;
     
-    logic [2:0]func3 = instruction[14:12];
+
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-//    logic memtoreg; // MUX Control
-//////////////////////////////////////////////// 
-//    logic [31:0]next_pc;
-//    logic [31:0]current_pc;
-    
-    
-//    logic [31:0]pc_plus_4; //offset alu/adder
-    
-    assign pc_plus_4 = current_pc + 4;
+    assign pc_plus_4 = current_pc + 32'h4;
     
     
     
@@ -80,7 +84,7 @@ input logic clk, reset_n
     
 //////////////////////////////////////////////// 
 
-//    logic [31:0]instruction;
+
     
     inst_mem ROM(
         .address(current_pc),
@@ -91,16 +95,7 @@ input logic clk, reset_n
 //////////////////////////////////////////////// 
 
     
-    
-//    logic reg_write;
-//    logic [4:0]rs1, rs2, rd;
-//    assign rs1 = instruction[19:15];
-//    assign rs2 = instruction[24:20];
-//    assign rd  = instruction[11:7];
-        
-//    logic [31:0]reg_rdata1;
-//    logic [31:0]reg_rdata2;
-//    logic [31:0]reg_wdata;
+ 
     
     reg_file Register (
         .clk(clk),
@@ -118,7 +113,7 @@ input logic clk, reset_n
     
     
     
-//    logic [31:0]imm;
+
     
     imm_gen IMM_Generator (
         .instruction(instruction),
@@ -128,33 +123,12 @@ input logic clk, reset_n
     
     
     
-//    logic [31:0]pc_jump;
-    
-//    assign pc_jump = current_pc + imm; // alu/adder
-    
-//     logic zero;
-//     logic branch;
-//     logic pc_sel;
-//     assign pc_sel = branch & zero;
-//     assign next_pc = (pc_sel == 0) ? pc_plus_4 : pc_jump;
-     
-     
+  
     
     
 //////////////////////////////////////////////// 
 
-    
-//    logic [3:0]alu_ctrl;
-////    logic zero; moved it up there
-//    logic [31:0]alu_result;
-    
-//    logic [31:0]alu_op2;
-//    // logic [31:0]reg_rdata2; its written up there
-////    logic [31:0]imm;    also its written up there
-//    logic alu_src; //conrol bit for the MUX
-    
-//    assign alu_op2 = (alu_src == 0) ? reg_rdata2 : imm;  //<------ MUX
-    
+  
     
     
     alu ALU(
@@ -169,9 +143,7 @@ input logic clk, reset_n
 
 
 
-//    logic mem_write;
-//    logic [31:0]mem_rdata;
-//    logic [1:0]bhw;
+
     
     data_mem RAM (
         .clk(clk),
@@ -184,16 +156,7 @@ input logic clk, reset_n
     
     );
     
-    
-//    logic [31:0]reg_wdata;  //i put it up there
-//    logic memtoreg; // MUX Control
-    
-//    assign reg_wdata = (memtoreg == 1) ? mem_rdata : alu_result; //   <---------- MUX
-    
-    
-    
-    
-    
+
     
     
     
