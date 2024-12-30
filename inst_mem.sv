@@ -13,7 +13,7 @@ output logic [31:0]instruction
     
     always_comb begin
         
-        instruction = memory[address];
+        instruction = memory[address>>2];
         
     end
     
